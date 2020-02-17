@@ -4,8 +4,10 @@
   :license {:name "Propieitary"
             :url ""}
   :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/tools.cli "0.4.2"]
+                 [org.clojure/tools.logging "0.6.0"]
                  [aleph "0.4.6"]
-                 [com.stuartsierra/component "0.3.2"]
+                 [cprop "0.1.15"]
                  [metosin/reitit "0.3.7"]
                  [compojure "1.6.1"]
                  [crypto-password "0.2.1"]
@@ -13,6 +15,7 @@
                  [nilenso/honeysql-postgres "0.2.5"]
                  [org.clojure/java.jdbc "0.7.8"]
                  [org.postgresql/postgresql "42.2.5"]
+                 [mount "0.1.16"]
                  [hiccup "1.0.5"]
                  [garden "1.3.9"]
                  [clj-json "0.5.3"]]
