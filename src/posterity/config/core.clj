@@ -7,15 +7,20 @@
     config))
 
 (def atlassian-descriptor
-  (->Atlassian-config {:name "Hello World"
-                       :description "Atlassian connect app"
-                       :key "com.example.myapp"
-                       :baseUrl "https://ae45742c.ngrok.io"
-                       :vendor {:name "Example, Inc"
-                                :url "http://example.com"}
+  (->Atlassian-config {:name "Posterity"
+                       :description "Posterity "
+                       :key "com.adhesive-digital.posterity"
+                       :baseUrl "https://d205bf5e.ngrok.io"
+                       :vendor {:name "Adhesive Digital"
+                                :url "https://adhesive.digital"}
                        :authentication {:type "none"}
                        :apiVersion 1
-                       :modules {:generalPages [{:url "/helloworld.html"
-                                                 :key "hello-world"
+                       :modules {:generalPages [{:url "/settings.html"
+                                                 :key "posterity-settings"
                                                  :location "system.top.navigation.bar"
-                                                 :name {:value "Greeting"}}]}}))
+                                                 :name {:value "Posterity"}}]
+                                 :webhooks [{:event "jira:issue_created"
+                                             :url "/events"}
+                                            {:event "jira:issue_updated"
+                                             :url "/events"}]}
+                       :scopes ["read"]}))

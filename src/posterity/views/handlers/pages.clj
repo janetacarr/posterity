@@ -12,7 +12,7 @@
           "<script src=\"https://connect-cdn.atl-paas.net/all.js\" async></script>"]
          [:body
           [:section {:id "content" :class "ac-content"}
-           [:h1 "I'm sorry James, I cannot do that."]]]])))
+           [:h1 "Posterity Settings"]]]])))
 
 (defn get-hello-page
   [req]

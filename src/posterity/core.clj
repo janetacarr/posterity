@@ -2,6 +2,7 @@
   (:require [posterity.api.core :as api]
             [posterity.http :as http]
             [posterity.config :refer [env]]
+            [posterity.eventq.core :refer [eventq]]
             [mount.core :as mount]
             [clojure.tools.logging :as log]
             [clojure.tools.cli :refer [parse-opts]])
