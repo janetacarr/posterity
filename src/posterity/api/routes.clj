@@ -5,7 +5,9 @@
 
 (def api-routes
   [["/events" {:post {}
-               :handler (handlers/webhook-event!)}]])
+               :handler (handlers/webhook-event!)}]
+   ["/install" {:post {}
+                :handler (handlers/app-installed)}]])
 
 (def rest-routes
   (do

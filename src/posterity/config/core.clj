@@ -10,10 +10,11 @@
   (->Atlassian-config {:name "Posterity"
                        :description "Posterity "
                        :key "com.adhesive-digital.posterity"
-                       :baseUrl "https://d205bf5e.ngrok.io"
+                       :baseUrl "https://955d8eed.ngrok.io"
                        :vendor {:name "Adhesive Digital"
                                 :url "https://adhesive.digital"}
-                       :authentication {:type "none"}
+                       :authentication {:type "jwt"}
+                       :lifecycle {:installed "/install"}
                        :apiVersion 1
                        :modules {:generalPages [{:url "/settings.html"
                                                  :key "posterity-settings"
