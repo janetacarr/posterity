@@ -1,7 +1,7 @@
 (ns posterity.views.handlers.config
   (:require [posterity.domain.protocols :as p]
             [posterity.config.core :as config]
-            [clj-json.core :as json]))
+            [cheshire.core :as json]))
 
 (defn get-atlassian-connect
   [req]

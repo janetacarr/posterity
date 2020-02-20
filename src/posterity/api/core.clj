@@ -1,6 +1,5 @@
 (ns posterity.api.core
   (:require [aleph.http :as http]
-            [clj-json.core :as json]
             [reitit.ring :as ring]
             [reitit.coercion.spec :as s]
             [reitit.ring.coercion :as rrc]

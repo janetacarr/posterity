@@ -1,13 +1,30 @@
 (ns posterity.api.routes
   (:require [posterity.api.handlers :as handlers]
             [posterity.api.views :as views]
-            [posterity.eventq.core :refer [eventq]]))
+            [posterity.eventq.core :refer [eventq]]
+            [posterity.middleware :refer [wrap-params]]))
 
 (def api-routes
-  [["/events" {:post {}
+  [["/events" {:post {:middleware [wrap-params]}
                :handler (handlers/webhook-event!)}]
-   ["/install" {:post {}
-                :handler (handlers/app-installed)}]])
+   ["/jira"
+    ["/install" {:post {}
+                 :handler (handlers/app-installed nil)}]
+    ["/uninstall" {:post {}
+                   :handler (handlers/app-uninstalled nil)}]
+    ["/enabled" {:post {}
+                 :handler (handlers/app-enabled nil)}]
+    ["/disabled" {:post {}
+                  :handler (handlers/app-disabled nil)}]]
+   ["/confluence"
+    ["/install" {:post {}
+                 :handler (handlers/app-installed nil)}]
+    ["/uninstall" {:post {}
+                   :handler (handlers/app-uninstalled nil)}]
+    ["/enabled" {:post {}
+                 :handler (handlers/app-enabled nil)}]
+    ["/disabled" {:post {}
+                  :handler (handlers/app-disabled nil)}]]])
 
 (def rest-routes
   (do

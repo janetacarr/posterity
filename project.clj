@@ -20,7 +20,8 @@
                  [mount "0.1.16"]
                  [hiccup "1.0.5"]
                  [garden "1.3.9"]
-                 [clj-json "0.5.3"]]
+                 [cheshire "5.10.0"]
+                 [camel-snake-kebab "0.4.1"]]
   :plugins [[cider/cider-nrepl "0.21.1"]]
   :main ^:skip-aot posterity.core
   :target-path "target/%s"

@@ -1,6 +1,6 @@
 (ns posterity.views.handlers.pages
   (:require [hiccup.core :as hiccup]
-            [clj-json.core :as json]))
+            [cheshire.core :as json]))
 
 (def hello
   (str "<!DOCTYPE html>"
