@@ -39,4 +39,10 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
+  (mount/start #'posterity.config/env)
+  (cond
+    (nil? (:database-url env))
+    (do (log/error "DATABASE_URL not set.")
+        (System/exit 1)))
+  :else
   (start-app args))

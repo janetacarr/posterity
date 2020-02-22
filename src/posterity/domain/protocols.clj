@@ -30,5 +30,30 @@
                            service-entitlement-number oauth-client-id] :as disabled-payload}]
     "Takes an disabled payload map, and returns true if the customer was disabled correctly. Nil if not"))
 
-#_(defprotocol customer-entity
-    (create-customer [this]))
+(defprotocol CustomerEntity
+  (create-customer! [this]
+    "Takes nothing really, and return true if a new customer was created.")
+  (get-customer [this id]
+    "Get a customer by it's ID and return it, nil if not found.")
+  (update-customer! [this id timestamp]
+    "Update a customer by it's ID and returns true if successful nil otherwise. ")
+  (delete-customer! [this id]
+    "Deletes a customer by it's ID and returns true if successful, nil otherwise.")
+  (list-customers [this]
+    "Takes no arguments except this, and returns [customers"))
+
+(defprotocol InstallEntity
+  (create-install! [this customer-id key client-key account-id shared-secret
+                    base-url display-url service-url product-type description
+                    service-entitlement-number oauth-client-id]
+    "Creates a new product installation with the given args.")
+  (get-install! [this client-key product-type]
+    "Get install by client-key and product-type. Returns the install info, nil otherwise.")
+  (update-install! [this id key account-id display-url service-url description
+                    oauth-client-id enabled?]
+    "Update an install's non-critical fields. Critical fields are immutable for
+     security reasons. Returns true if sucessful, nil otherwise.")
+  (delete-install! [this id]
+    "Delete an install. Analogous to an uninstall.")
+  (enable-install! [this client-key product-type])
+  (disable-install! [this client-key product-type]))

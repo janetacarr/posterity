@@ -18,6 +18,7 @@
                  [org.clojure/java.jdbc "0.7.8"]
                  [org.postgresql/postgresql "42.2.5"]
                  [mount "0.1.16"]
+                 [manifold "0.1.8"]
                  [hiccup "1.0.5"]
                  [garden "1.3.9"]
                  [cheshire "5.10.0"]

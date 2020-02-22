@@ -7,7 +7,7 @@
 (def api-routes
   [["/events" {:post {:middleware [wrap-params]}
                :handler (handlers/webhook-event!)}]
-   ["/jira"
+   ["/jira" {:middleware [wrap-params]}
     ["/install" {:post {}
                  :handler (handlers/app-installed nil)}]
     ["/uninstall" {:post {}
@@ -16,7 +16,7 @@
                  :handler (handlers/app-enabled nil)}]
     ["/disabled" {:post {}
                   :handler (handlers/app-disabled nil)}]]
-   ["/confluence"
+   ["/confluence" {:middleware [wrap-params]}
     ["/install" {:post {}
                  :handler (handlers/app-installed nil)}]
     ["/uninstall" {:post {}
