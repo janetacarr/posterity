@@ -1,5 +1,6 @@
 (ns posterity.api.handlers
   (:require [clojure.tools.logging :as log]
+            [clojure.spec.alpha :as s]
             [cheshire.core :as json]
             [byte-streams :as bs]
             [posterity.eventq.core :refer [eventq]]
@@ -24,28 +25,34 @@
 
 (defn app-installed
   [lifecycle]
-  (fn [req]
+  (fn install-handler
+    [req]
     (let [{:keys [body headers]} req]
       (log/info "Received install callback: " body)
-      {:status 200})))
+      (if (nil? (p/installed! lifecycle body))
+        {:status 400})
+      {:status 204})))
 
 (defn app-uninstalled
   [lifecycle]
-  (fn [req]
+  (fn uninstall-handler
+    [req]
     (let [{:keys [body headers]} req]
       (log/info "Received uninstall callback: " req)
       {:status 200})))
 
 (defn app-enabled
   [lifecycle]
-  (fn [req]
+  (fn enable-handler
+    [req]
     (let [{:keys [body headers]} req]
       (log/info "Received enabled callback: " body)
       {:status 200})))
 
 (defn app-disabled
   [lifecycle]
-  (fn [req]
+  (fn disable-handler
+    [req]
     (let [{:keys [body headers]} req]
       (log/info "Received disabled callback: " req)
       {:status 200})))
