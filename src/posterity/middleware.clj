@@ -77,12 +77,12 @@
 (s/def ::body (s/keys :req-un
                       [::key
                        ::client-key
-                       ::shared-secret
                        ::base-url
                        ::product-type
                        ::event-type]
                       :opt-un
-                      [::server-version
+                      [::shared-secret
+                       ::server-version
                        ::plugins-version
                        ::display-url
                        ::display-url-servicedesk-help-center

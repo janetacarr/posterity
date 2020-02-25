@@ -10,11 +10,14 @@
   (->AtlassianConfig {:name "Posterity"
                       :description "Posterity "
                       :key "com.adhesive-digital.posterity"
-                      :baseUrl "https://5adca95d.ngrok.io"
+                      :baseUrl "https://602f560c.ngrok.io"
                       :vendor {:name "Adhesive Digital"
                                :url "https://adhesive.digital"}
                       :authentication {:type "jwt"}
-                      :lifecycle {:installed "/jira/install"}
+                      :lifecycle {:installed "/jira/install"
+                                  :uninstalled "/jira/uninstall"
+                                  :enabled "/jira/enabled"
+                                  :disabled "/jira/disabled"}
                       :apiVersion 1
                       :modules {:generalPages [{:url "/settings.html"
                                                 :key "posterity-settings"

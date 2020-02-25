@@ -1,8 +1,6 @@
 (ns posterity.settings.confluence.lifecycle
   (:require [posterity.domain.protocols :as p]))
 
-
-
 (defrecord ConfluenceLifecycle []
   p/CustomerLifecycle
   (installed! [this

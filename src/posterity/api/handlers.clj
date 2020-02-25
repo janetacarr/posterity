@@ -28,25 +28,27 @@
   (fn install-handler
     [req]
     (let [{:keys [body headers]} req]
-      (log/info "Received install callback: " body)
+      (log/debug "Received install callback: " body)
       (if (nil? (p/installed! lifecycle body))
-        {:status 400})
-      {:status 204})))
+        {:status 400}
+        {:status 204}))))
 
 (defn app-uninstalled
   [lifecycle]
   (fn uninstall-handler
     [req]
     (let [{:keys [body headers]} req]
-      (log/info "Received uninstall callback: " req)
-      {:status 200})))
+      (log/debug "Received uninstall callback: " req)
+      (if (nil? (p/uninstalled! lifecycle body))
+        {:status 400}
+        {:status 200}))))
 
 (defn app-enabled
   [lifecycle]
   (fn enable-handler
     [req]
     (let [{:keys [body headers]} req]
-      (log/info "Received enabled callback: " body)
+      (log/debug "Received enabled callback: " body)
       {:status 200})))
 
 (defn app-disabled
@@ -54,5 +56,5 @@
   (fn disable-handler
     [req]
     (let [{:keys [body headers]} req]
-      (log/info "Received disabled callback: " req)
+      (log/debug "Received disabled callback: " req)
       {:status 200})))

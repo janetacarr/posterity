@@ -32,7 +32,7 @@
 
 (defprotocol CustomerEntity
   (create-customer! [this]
-    "Takes nothing really, and return true if a new customer was created.")
+    "Takes nothing really, and returns the new customer or nil if there was a problem.")
   (get-customer [this id]
     "Get a customer by it's ID and return it, nil if not found.")
   (update-customer! [this id timestamp]
@@ -46,14 +46,16 @@
   (create-install! [this customer-id key client-key account-id shared-secret
                     base-url display-url service-url product-type description
                     service-entitlement-number oauth-client-id]
-    "Creates a new product installation with the given args.")
+    "Creates a new product installation, return the new install or nil if there was a problem")
   (get-install! [this client-key product-type]
     "Get install by client-key and product-type. Returns the install info, nil otherwise.")
-  (update-install! [this id key account-id display-url service-url description
+  (update-install! [this id key account-id base-url display-url service-url description
                     oauth-client-id enabled?]
     "Update an install's non-critical fields. Critical fields are immutable for
      security reasons. Returns true if sucessful, nil otherwise.")
   (delete-install! [this id]
-    "Delete an install. Analogous to an uninstall.")
-  (enable-install! [this client-key product-type])
-  (disable-install! [this client-key product-type]))
+    "Delete an install. Analogous to an uninstall."))
+
+(defprotocol EnableEntity
+  (enable! [this client-key product-type])
+  (disable! [this client-key product-type]))

@@ -10,7 +10,7 @@
   [["/events" {:post {:middleware [wrap-params]}
                :handler (handlers/webhook-event!)}]
 
-   (let [jira-lc (jl/->JiraLifecycle)]
+   (let [jira-lc (jl/jira-lifecycle)]
      ["/jira" {:middleware [wrap-params
                             wrap-lifecycle-request]}
       ["/install" {:post {}

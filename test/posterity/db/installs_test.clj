@@ -54,8 +54,8 @@
                                 "A fake jira addon"
                                 "123"
                                 nil)]
-        (is (= jira-installed true))
-        (is (= confluence-installed true))
+        (is (map? jira-installed))
+        (is (map? confluence-installed))
         (is (= wrong-product-type nil))))))
 
 (run-tests)

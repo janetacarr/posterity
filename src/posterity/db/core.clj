@@ -6,9 +6,13 @@
 
 (defn new-db-spec
   [opts]
-  (-> {}
+  (-> {:dbtype "postgres"
+       :dbname "posterity"
+       :user "postgres"
+       :password "postgres"}
       (assoc :connection-uri (:database-url opts))))
 
+;; FIXME: database mount is not dereferencing when passed to clojure.java.jdbc
 (defstate db
   :start
   (new-db-spec env)

@@ -11,12 +11,21 @@
   p/CustomerEntity
   (create-customer! [this]
     (try
-      (jdbc/with-db-connection [db-con db]
-        (->> (hsql/build :insert-into :customers :values [{:ts :current_timestamp}])
-             (hsql/format)
-             (jdbc/execute! db-con)
-             (empty?)
-             (not)))
+      (jdbc/with-db-transaction [db-con db]
+        (let [customer-is-created
+              (->> (hsql/build :insert-into :customers :values [{:ts :current_timestamp}])
+                   (hsql/format)
+                   (jdbc/execute! db-con)
+                   (empty?)
+                   (not))]
+          (when customer-is-created
+            (->> (hsql/build :select :* :from :customers
+                             :order-by [[:customer_id :desc]]
+                             :limit 1)
+                 (hsql/format)
+                 (jdbc/query db-con)
+                 (first)
+                 (cske/transform-keys csk/->kebab-case-keyword)))))
       (catch Exception e
         (log/error "unable to create customer entry in db" (.getMessage e)))))
 

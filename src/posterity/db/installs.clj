@@ -14,29 +14,39 @@
                     base-url display-url service-url product-type description
                     service-entitlement-number oauth-client-id]
     (try
-      (let [pt (case product-type
-                 "jira" (hsql/raw "'jira'")
-                 "confluence" (hsql/raw "'confluence'")
-                 (log/warn "product-type must be either 'jira' or 'confluence'"))]
-        (when-not (nil? pt)
-          (->> (hsql/build :insert-into :installs
-                           :values
-                           [{:customer_id customer-id
-                             :key key
-                             :client_key client-key
-                             :account_id account-id
-                             :shared_secret shared-secret
-                             :base_url base-url
-                             :display_url display-url
-                             :display_url_service_help_center service-url
-                             :product_type pt
-                             :description description
-                             :service_entitlement_number service-entitlement-number
-                             :oauth_client_id oauth-client-id}])
-               (hsql/format)
-               (jdbc/execute! db)
-               (empty?)
-               (not))))
+      (jdbc/with-db-transaction [db-con db]
+        (let [pt (case product-type
+                   "jira" (hsql/raw "'jira'")
+                   "confluence" (hsql/raw "'confluence'")
+                   (log/warn "product-type must be either 'jira' or 'confluence'"))]
+          (when-not (nil? pt)
+            (let [install-is-created
+                  (->> (hsql/build :insert-into :installs
+                                   :values
+                                   [{:customer_id customer-id
+                                     :key key
+                                     :client_key client-key
+                                     :account_id account-id
+                                     :shared_secret shared-secret
+                                     :base_url base-url
+                                     :display_url display-url
+                                     :display_url_service_help_center service-url
+                                     :product_type pt
+                                     :description description
+                                     :service_entitlement_number service-entitlement-number
+                                     :oauth_client_id oauth-client-id}])
+                       (hsql/format)
+                       (jdbc/execute! db-con)
+                       (empty?)
+                       (not))]
+              (when install-is-created
+                (->> (hsql/build :select :* :from :installs
+                                 :order-by [[:install_id :desc]]
+                                 :limit 1)
+                     (hsql/format)
+                     (jdbc/query db-con)
+                     (first)
+                     (cske/transform-keys csk/->kebab-case-keyword)))))))
       (catch Exception e
         (log/error "unable to create install entry in db" (.getMessage e)))))
 
@@ -62,24 +72,34 @@
          product-type
          (.getMessage e)))))
 
-  (update-install! [this id key account-id display-url service-url
+  (update-install! [this id key account-id base-url display-url service-url
                     description oauth-client-id enabled?]
     (try
-      (letfn [(exec! [q]
-                (jdbc/execute! db q))]
-        (-> (hsqlh/update :installs)
-            (hsqlh/sset {:key key
-                         :account_id account-id
-                         :display_url display-url
-                         :display_url_service_help_center service-url
-                         :description description
-                         :oauth_client_id oauth-client-id
-                         :enabled enabled?})
-            (hsqlh/where [:= :install_id id])
-            (hsql/format)
-            (exec!)
-            (empty?)
-            (not)))
+      (jdbc/with-db-connection [db-con db]
+        (letfn [(exec! [q]
+                  (jdbc/execute! db-con q))]
+          (let [install-is-updated
+                (-> (hsqlh/update :installs)
+                    (hsqlh/sset {:key key
+                                 :account_id account-id
+                                 :base-url base-url
+                                 :display_url display-url
+                                 :display_url_service_help_center service-url
+                                 :description description
+                                 :oauth_client_id oauth-client-id
+                                 :enabled enabled?})
+                    (hsqlh/where [:= :install_id id])
+                    (hsql/format)
+                    (exec!)
+                    (empty?)
+                    (not))]
+            (when install-is-updated
+              (->> (hsql/build :select :* :from :installs
+                               :where [:= :install_id id])
+                   (hsql/format)
+                   (jdbc/query db-con)
+                   (first)
+                   (cske/transform-keys csk/->kebab-case-keyword))))))
       (catch Exception e
         (log/warn "unable to update install" id (.getMessage e)))))
 
@@ -94,11 +114,14 @@
             (empty?)
             (not)))
       (catch Exception e
-        (log/warn "unable to delete installation" id (.getMessage e)))))
+        (log/warn "unable to delete installation" id (.getMessage e))))))
 
-  (enable-install! [this client-key product-type]
+(extend-type Installs
+  p/EnableEntity
+  (enable! [this client-key product-type]
     (try
-      (let [pt (case product-type
+      (let [db (:db this)
+            pt (case product-type
                  "jira" (hsql/raw "'jira'")
                  "confluence" (hsql/raw "'confluence'")
                  (log/warn "product-type must be either 'jira' or 'confluence'"))]
@@ -124,9 +147,10 @@
       (catch Exception e
         (log/error "unable to enable install" client-key product-type (.getMessage e)))))
 
-  (disable-install! [this client-key product-type]
+  (disable! [this client-key product-type]
     (try
-      (let [pt (case product-type
+      (let [db (:db this)
+            pt (case product-type
                  "jira" (hsql/raw "'jira'")
                  "confluence" (hsql/raw "'confluence'")
                  (log/warn "product-type must be either 'jira' or 'confluence'"))]
