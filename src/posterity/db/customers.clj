@@ -2,10 +2,10 @@
   (:require [camel-snake-kebab.core :as csk]
             [camel-snake-kebab.extras :as cske]
             [clojure.java.jdbc :as jdbc]
-            [clojure.tools.logging :as log]
             [honeysql.core :as hsql]
             [honeysql.helpers :as hsqlh]
-            [posterity.domain.protocols :as p]))
+            [posterity.domain.protocols :as p]
+            [taoensso.timbre :as log]))
 
 (defrecord Customers [db]
   p/CustomerEntity

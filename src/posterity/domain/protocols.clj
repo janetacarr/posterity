@@ -59,3 +59,6 @@
 (defprotocol EnableEntity
   (enable! [this client-key product-type])
   (disable! [this client-key product-type]))
+
+(defprotocol TokenValidator
+  (get-secret-bytes [this]))

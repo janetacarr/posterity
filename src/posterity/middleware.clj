@@ -1,11 +1,16 @@
 (ns posterity.middleware
-  (:require [cheshire.core :as json]
+  (:require [buddy.auth.backends :as backends]
+            [buddy.auth.middleware :as budmid]
+            [cheshire.core :as json]
             [clojure.spec.alpha :as s]
-            [clojure.tools.logging :as log]
             [byte-streams :as bs]
             [camel-snake-kebab.core :as csk]
             [camel-snake-kebab.extras :as cske]
-            [reitit.ring.middleware.exception :as exception]))
+            [posterity.domain.protocols :as p]
+            [posterity.db.core :refer [new-db-spec]]
+            [posterity.db.installs :refer [->Installs]]
+            [reitit.ring.middleware.exception :as exception]
+            [taoensso.timbre :as log]))
 
 (defn bytestream->map
   [bytestream]
@@ -21,7 +26,7 @@
 
 (defn wrap-params [handler]
   (fn [request]
-    (let [headers (->> request :headers (cske/transform-keys csk/->kebab-case-keyword))
+    (let [headers (->> request :headers)
           body (-> request :body bytestream->map)]
       (handler (assoc request :body body :headers headers)))))
 
@@ -102,3 +107,29 @@
         (do
           (log/error "received invalid lifecycle event" body)
           {:status 400})))))
+
+(defn client-secret
+  [request]
+  (let [decoder (java.util.Base64/getDecoder)
+        installer (->Installs (new-db-spec {}))
+        issuer (as-> (get-in request [:headers "authorization"]) $
+                 (clojure.string/split $ #"[.]")
+                 (second $)
+                 (.decode decoder $)
+                 (String. $)
+                 (json/parse-string $ csk/->kebab-case-keyword)
+                 (:iss $))
+        product-type "jira" ;;make from request body
+        shared-secret (:shared-secret (p/get-install! installer issuer product-type))
+        secret-bytes (bytes (byte-array (map (comp byte int) shared-secret)))]
+    secret-bytes))
+
+(defn wrap-authentication
+  [handler]
+  (fn [request]
+    (let [secret (client-secret request)
+          backend (backends/jws {:secret secret
+                                 :token-name "JWT"})]
+      (if-not (nil? (budmid/authenticate-request request [backend]))
+        (handler request)
+        {:status 401}))))

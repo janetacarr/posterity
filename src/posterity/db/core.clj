@@ -1,8 +1,8 @@
 (ns posterity.db.core
   (:require [mount.core :refer [defstate]]
             [clojure.java.jdbc :as jdbc]
-            [clojure.tools.logging :as log]
-            [posterity.config :refer [env]]))
+            [posterity.config :refer [env]]
+            [taoensso.timbre :as log]))
 
 (defn new-db-spec
   [opts]

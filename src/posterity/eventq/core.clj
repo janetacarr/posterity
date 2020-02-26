@@ -1,9 +1,9 @@
 (ns posterity.eventq.core
   (:require [posterity.domain.protocols :as p]
             [clojure.core.async :as a]
-            [clojure.tools.logging :as log]
             [posterity.eventq.puller :as puller]
-            [mount.core :refer [defstate]]))
+            [mount.core :refer [defstate]]
+            [taoensso.timbre :as log]))
 
 (defrecord EventQ [ch]
   p/event-bus

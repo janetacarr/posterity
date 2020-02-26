@@ -3,10 +3,10 @@
             [camel-snake-kebab.extras :as cske]
             [clojure.java.jdbc :as jdbc]
             [clojure.spec.alpha :as s]
-            [clojure.tools.logging :as log]
             [honeysql.core :as hsql]
             [honeysql.helpers :as hsqlh]
-            [posterity.domain.protocols :as p]))
+            [posterity.domain.protocols :as p]
+            [taoensso.timbre :as log]))
 
 (defrecord Installs [db]
   p/InstallEntity

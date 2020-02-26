@@ -2,12 +2,16 @@
   (:require [posterity.api.handlers :as handlers]
             [posterity.api.views :as views]
             [posterity.eventq.core :refer [eventq]]
-            [posterity.middleware :refer [wrap-params wrap-lifecycle-request]]
+            [posterity.middleware :refer [wrap-params
+                                          wrap-lifecycle-request
+                                          wrap-authentication]]
             [posterity.settings.jira.lifecycle :as jl]
             [posterity.settings.confluence.lifecycle :as cl]))
 
 (def api-routes
-  [["/events" {:post {:middleware [wrap-params]}
+  [["/events" {:post {}
+               :middleware [wrap-params
+                            wrap-authentication]
                :handler (handlers/webhook-event!)}]
 
    (let [jira-lc (jl/jira-lifecycle)]

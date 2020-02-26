@@ -4,8 +4,8 @@
             [posterity.config :refer [env]]
             [posterity.eventq.core :refer [eventq]]
             [mount.core :as mount]
-            [clojure.tools.logging :as log]
-            [clojure.tools.cli :refer [parse-opts]])
+            [clojure.tools.cli :refer [parse-opts]]
+            [taoensso.timbre :as log])
   (:gen-class))
 
 (def cli-options
@@ -22,6 +22,11 @@
        (update :port #(or (-> env :options :port) %))))
   :stop
   (http/stop http-server))
+
+(mount/defstate logger
+  :start
+  (let [log-level (assoc {} :level (keyword (:log-level env)))]
+    (log/merge-config! log-level)))
 
 (defn stop-app []
   (doseq [component (:stopped (mount/stop))]
@@ -43,6 +48,8 @@
   (cond
     (nil? (:database-url env))
     (do (log/error "DATABASE_URL not set.")
-        (System/exit 1)))
+        (System/exit 1))
+    (nil? (:log-level env))
+    (log/warn "LOG_LEVEL not set."))
   :else
   (start-app args))

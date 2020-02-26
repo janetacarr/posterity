@@ -1,8 +1,8 @@
 (ns posterity.eventq.puller
   (:require [posterity.domain.protocols :as p]
-            [clojure.tools.logging :as log]
             [clojure.core.async :refer [go-loop] :as a]
-            [mount.core :refer [defstate]]))
+            [mount.core :refer [defstate]]
+            [taoensso.timbre :as log]))
 
 (defn start-polling!
   [event-bus]

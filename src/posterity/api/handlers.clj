@@ -1,11 +1,11 @@
 (ns posterity.api.handlers
-  (:require [clojure.tools.logging :as log]
-            [clojure.spec.alpha :as s]
+  (:require [clojure.spec.alpha :as s]
             [cheshire.core :as json]
             [byte-streams :as bs]
             [posterity.eventq.core :refer [eventq]]
             [posterity.domain.protocols :as p]
-            [camel-snake-kebab.core :as csk]))
+            [camel-snake-kebab.core :as csk]
+            [taoensso.timbre :as log]))
 
 (defn bytestream->map
   [bytestream]
