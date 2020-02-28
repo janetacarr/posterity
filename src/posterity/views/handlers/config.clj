@@ -3,8 +3,8 @@
             [posterity.config.core :as config]
             [cheshire.core :as json]))
 
-(defn get-atlassian-connect
+(defn get-jira-connect
   [req]
   {:status 200
    :headers {"content-type" "application/json"}
-   :body (json/generate-string (p/config-map config/atlassian-descriptor))})
+   :body (json/generate-string (p/config-map (config/jira-descriptor)))})

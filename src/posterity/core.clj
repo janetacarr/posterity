@@ -50,6 +50,8 @@
     (do (log/error "DATABASE_URL not set.")
         (System/exit 1))
     (nil? (:log-level env))
-    (log/warn "LOG_LEVEL not set."))
+    (log/warn "LOG_LEVEL not set.")
+    (nil? (:posterity-url env))
+    (log/warn "POSTERITY_URL not set" (:posterity-url env)))
   :else
   (start-app args))

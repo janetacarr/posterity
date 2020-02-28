@@ -1,16 +1,20 @@
 (ns posterity.config.core
-  (:require [posterity.domain.protocols :as p]))
+  (:require [posterity.domain.protocols :as p]
+            [posterity.config :refer [env]]))
 
 (defrecord AtlassianConfig [config]
   p/AddonConfig
   (config-map [this]
     config))
 
-(def atlassian-descriptor
+
+;;FIXME: Make config map kebab case.
+(defn jira-descriptor
+  []
   (->AtlassianConfig {:name "Posterity"
                       :description "Posterity "
                       :key "com.adhesive-digital.posterity"
-                      :baseUrl "https://fe74fb63.ngrok.io"
+                      :baseUrl (:posterity-url env)
                       :vendor {:name "Adhesive Digital"
                                :url "https://adhesive.digital"}
                       :authentication {:type "jwt"}
@@ -28,3 +32,23 @@
                                            {:event "jira:issue_updated"
                                             :url "/events"}]}
                       :scopes ["read"]}))
+
+(defn confluence-descriptor
+  []
+  (->AtlassianConfig {:name "Posterity"
+                      :description "Posterity "
+                      :key "com.adhesive-digital.posterity"
+                      :baseUrl (:posterity-url env)
+                      :vendor {:name "Adhesive Digital"
+                               :url "https://adhesive.digital"}
+                      :authentication {:type "jwt"}
+                      :lifecycle {:installed "/confluence/install"
+                                  :uninstalled "/confluence/uninstall"
+                                  :enabled "/confluence/enabled"
+                                  :disabled "/confluence/disabled"}
+                      :apiVersion 1
+                      :modules {:generalPages [{:url "/settings.html"
+                                                :key "posterity-settings"
+                                                :location "system.top.navigation.bar"
+                                                :name {:value "Posterity"}}]}
+                      :scopes ["read" "write"]}))

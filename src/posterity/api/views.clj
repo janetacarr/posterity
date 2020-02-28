@@ -7,6 +7,6 @@
     ["/settings.html" {:get {}
                        :handler pages-handlers/get-hello-page}]
     ["/atlassian-connect.json" {:get {}
-                                :handler config-handlers/get-atlassian-connect}]]
+                                :handler config-handlers/get-jira-connect}]]
 
    ])
