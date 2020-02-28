@@ -3,10 +3,10 @@
             [posterity.views.handlers.pages :as pages-handlers]))
 
 (def view-routes
-  ["/jira"
-   ["/settings.html" {:get {}
-                      :handler pages-handlers/get-hello-page}]
-   ["/atlassian-connect.json" {:get {}
-                               :handler config-handlers/get-atlassian-connect}]
+  [["/jira"
+    ["/settings.html" {:get {}
+                       :handler pages-handlers/get-hello-page}]
+    ["/atlassian-connect.json" {:get {}
+                                :handler config-handlers/get-atlassian-connect}]]
 
    ])

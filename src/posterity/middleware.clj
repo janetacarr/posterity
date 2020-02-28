@@ -7,8 +7,7 @@
             [camel-snake-kebab.core :as csk]
             [camel-snake-kebab.extras :as cske]
             [posterity.domain.protocols :as p]
-            [posterity.db.core :refer [new-db-spec]]
-            [posterity.db.installs :refer [->Installs]]
+            [posterity.settings.token :refer [auth-token-installs]]
             [reitit.ring.middleware.exception :as exception]
             [taoensso.timbre :as log]))
 
@@ -35,10 +34,11 @@
 (derive ::horror ::exception)
 
 (defn handler [message exception request]
-  (let [body (map->bytestream {:message message
-                               :exception (.getMessage exception)
-                               :data (ex-data exception)
-                               :uri (:uri request)})]
+  (let [body (bs/to-byte-buffer "Internal Server Error")]
+    (log/debug "Internal server error: " {:message message
+                                          :exception (.getMessage exception)
+                                          :data (ex-data exception)
+                                          :uri (:uri request)})
     {:status 500
      :body body}))
 
@@ -60,7 +60,7 @@
 
      ;; print stack-traces for all exceptions
      ::exception/wrap (fn [handler e request]
-                        (println "ERROR" (pr-str (:uri request)))
+                        (log/error "ERROR" (pr-str (:uri request)))
                         (handler e request))})))
 
 (s/def ::key string?)
@@ -108,26 +108,14 @@
           (log/error "received invalid lifecycle event" body)
           {:status 400})))))
 
-(defn client-secret
-  [request]
-  (let [decoder (java.util.Base64/getDecoder)
-        installer (->Installs (new-db-spec {}))
-        issuer (as-> (get-in request [:headers "authorization"]) $
-                 (clojure.string/split $ #"[.]")
-                 (second $)
-                 (.decode decoder $)
-                 (String. $)
-                 (json/parse-string $ csk/->kebab-case-keyword)
-                 (:iss $))
-        product-type "jira" ;;make from request body
-        shared-secret (:shared-secret (p/get-install! installer issuer product-type))
-        secret-bytes (bytes (byte-array (map (comp byte int) shared-secret)))]
-    secret-bytes))
-
 (defn wrap-authentication
   [handler]
   (fn [request]
-    (let [secret (client-secret request)
+    (let [secret (-> "jira"
+                     (auth-token-installs)
+                     (p/get-secret-bytes (get-in
+                                          request
+                                          [:headers "authorization"])))
           backend (backends/jws {:secret secret
                                  :token-name "JWT"})]
       (if-not (nil? (budmid/authenticate-request request [backend]))

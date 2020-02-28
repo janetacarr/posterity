@@ -10,7 +10,7 @@
   (->AtlassianConfig {:name "Posterity"
                       :description "Posterity "
                       :key "com.adhesive-digital.posterity"
-                      :baseUrl "https://e1fabaf9.ngrok.io"
+                      :baseUrl "https://fe74fb63.ngrok.io"
                       :vendor {:name "Adhesive Digital"
                                :url "https://adhesive.digital"}
                       :authentication {:type "jwt"}

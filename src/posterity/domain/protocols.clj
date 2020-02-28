@@ -61,4 +61,5 @@
   (disable! [this client-key product-type]))
 
 (defprotocol TokenValidator
-  (get-secret-bytes [this]))
+  (get-secret-bytes [this token]
+    "Takes a JWT and product-type, extracts the issuer and gets the secret stored in the db. nil if not found."))
