@@ -19,6 +19,7 @@
     (let [request-body (:body req)]
       (when-not (nil? request-body)
         (p/put-event! eventq request-body))
+      (log/info "Whole request:" req)
       (log/info "headers: ==============> "(:headers req))
       (log/info "Received webhook event: " request-body))
     {:status 200}))
@@ -49,7 +50,9 @@
     [req]
     (let [{:keys [body headers]} req]
       (log/debug "Received enabled callback: " body)
-      {:status 200})))
+      (if-let [enable-install (p/enabled! lifecycle body)]
+        {:status 200}
+        {:status 400}))))
 
 (defn app-disabled
   [lifecycle]
@@ -57,4 +60,6 @@
     [req]
     (let [{:keys [body headers]} req]
       (log/debug "Received disabled callback: " req)
-      {:status 200})))
+      (if-let [disable-install (p/disabled! lifecycle body)]
+        {:status 200}
+        {:status 400}))))

@@ -13,9 +13,9 @@
 
 (defn bytestream->map
   [bytestream]
-  (-> bytestream
-      bs/to-string
-      (json/parse-string csk/->kebab-case-keyword)))
+  (some-> bytestream
+          bs/to-string
+          (json/parse-string csk/->kebab-case-keyword)))
 
 (defn map->bytestream
   [m]
@@ -23,11 +23,25 @@
       (json/generate-string csk/->camelCase)
       (bs/to-byte-buffer)))
 
+(defn querystr->map
+  [s]
+  (letfn [(vs->m
+            [vs]
+            (reduce (fn [acc x]
+                      (let [[key val] (clojure.string/split x #"=")
+                            key (csk/->kebab-case-keyword key)]
+                        (assoc acc (keyword key) val)))
+                    {} vs))]
+    (some-> s
+            (clojure.string/split #"&")
+            (vs->m))))
+
 (defn wrap-params [handler]
   (fn [request]
     (let [headers (->> request :headers)
-          body (-> request :body bytestream->map)]
-      (handler (assoc request :body body :headers headers)))))
+          body (-> request :body bytestream->map)
+          query-params (some-> request :query-string querystr->map)]
+      (handler (assoc request :body body :headers headers :query-params query-params)))))
 
 (derive ::error ::exception)
 (derive ::failure ::exception)
@@ -108,14 +122,24 @@
           (log/error "received invalid lifecycle event" body)
           {:status 400})))))
 
+
+;; TODO: Added query string hash (qsh) validation
 (defn wrap-authentication
-  [handler]
+  [product-type handler]
   (fn [request]
-    (let [secret (-> "jira"
+    (let [token (or (some->> request
+                             :query-params
+                             :jwt
+                             (str "JWT "))
+                    (some->> request
+                             :query-params
+                             :JWT
+                             (str "JWT "))
+                    (get-in request [:headers "authorization"]))
+          request (assoc-in request [:headers "authorization"] token)
+          secret (-> product-type
                      (auth-token-installs)
-                     (p/get-secret-bytes (get-in
-                                          request
-                                          [:headers "authorization"])))
+                     (p/get-secret-bytes token))
           backend (backends/jws {:secret secret
                                  :token-name "JWT"})]
       (if-not (nil? (budmid/authenticate-request request [backend]))

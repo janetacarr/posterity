@@ -1,6 +1,7 @@
 (ns posterity.settings.token
   (:require [buddy.auth.backends :as backends]
             [buddy.auth.middleware :as budmid]
+            [buddy.core.hash :as hash]
             [camel-snake-kebab.core :as csk]
             [cheshire.core :as json]
             [posterity.db.core :refer [new-db-spec]]
@@ -43,3 +44,13 @@
   (let [installer (->InstallKeys (new-db-spec {}))
         auther (->AuthToken installer product-type)]
     auther))
+
+(defn str->hash [s]
+  (some->> s
+           (map (comp byte int))
+           (byte-array)
+           (bytes)
+           (hash/sha256)
+           (mapv #(format "%02x" %))
+           (apply str)))
+;; (def my-token (jwt/sign {:iss "com.adhesive-digital.posterity" :iat (now-str) :exp (in-hour) :qsh (str->hash "POST&/rest/api/2/issue&")} secret))
