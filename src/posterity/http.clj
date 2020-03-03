@@ -1,9 +1,8 @@
 (ns posterity.http
-  (:require [clojure.tools.logging :as log]
-            [aleph.http :as http]
+  (:require [aleph.http :as http]
             [aleph.netty :as netty]
-            [clojure.tools.logging :as log]
-            [clojure.tools.cli :refer [parse-opts]]))
+            [clojure.tools.cli :refer [parse-opts]]
+            [taoensso.timbre :as log]))
 
 (defn start [{:keys [handler port] :as opts}]
   (try

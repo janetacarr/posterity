@@ -2,9 +2,10 @@
   (:require [posterity.api.core :as api]
             [posterity.http :as http]
             [posterity.config :refer [env]]
+            [posterity.eventq.core :refer [eventq]]
             [mount.core :as mount]
-            [clojure.tools.logging :as log]
-            [clojure.tools.cli :refer [parse-opts]])
+            [clojure.tools.cli :refer [parse-opts]]
+            [taoensso.timbre :as log])
   (:gen-class))
 
 (def cli-options
@@ -22,6 +23,11 @@
   :stop
   (http/stop http-server))
 
+(mount/defstate logger
+  :start
+  (let [log-level (assoc {} :level (keyword (:log-level env)))]
+    (log/merge-config! log-level)))
+
 (defn stop-app []
   (doseq [component (:stopped (mount/stop))]
     (log/info component "stopped"))
@@ -38,4 +44,14 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
+  (mount/start #'posterity.config/env)
+  (cond
+    (nil? (:database-url env))
+    (do (log/error "DATABASE_URL not set.")
+        (System/exit 1))
+    (nil? (:log-level env))
+    (log/warn "LOG_LEVEL not set.")
+    (nil? (:posterity-url env))
+    (log/warn "POSTERITY_URL not set" (:posterity-url env)))
+  :else
   (start-app args))
