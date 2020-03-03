@@ -7,7 +7,7 @@
             [camel-snake-kebab.core :as csk]
             [camel-snake-kebab.extras :as cske]
             [posterity.domain.protocols :as p]
-            [posterity.settings.token :refer [auth-token-installs]]
+            [posterity.core.token :refer [auth-token-installs]]
             [reitit.ring.middleware.exception :as exception]
             [taoensso.timbre :as log]))
 

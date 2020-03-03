@@ -20,7 +20,8 @@ CREATE TABLE installs (
        service_entitlement_number text not null,
        oauth_client_id text,
        enabled boolean default true,
-       ts timestamp default current_timestamp
+       ts timestamp default current_timestamp,
+       UNIQUE(base_url, product_type)
 );
 
 CREATE INDEX installs_cp_idx ON installs(client_key, product_type);

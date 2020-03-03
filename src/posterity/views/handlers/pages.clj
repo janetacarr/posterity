@@ -12,7 +12,11 @@
           "<script src=\"https://connect-cdn.atl-paas.net/all.js\" async></script>"]
          [:body
           [:section {:id "content" :class "ac-content"}
-           [:h1 "Posterity Settings"]]]])))
+           [:h1 "Posterity Settings"]
+           [:h2 "Complete your setup:"]
+           [:p "Go to confluence and enter this install key:"]
+           [:p (str (java.util.UUID/randomUUID))]
+           [:a {:href "https://adhesivedigital.atlassian.net/wiki/plugins/servlet/ac/com.adhesive-digital.posterity/posterity-configuration" :target "_blank"} "Confluence"]]]])))
 
 (defn get-hello-page
   [req]
@@ -30,7 +34,9 @@
           "<script src=\"https://connect-cdn.atl-paas.net/all.js\" async></script>"]
          [:body
           [:section {:id "content" :class "ac-content"}
-           [:h1 "Posterity Settings"]]]])))
+           [:h1 "Posterity Settings"]
+           [:p "Enter install key to complete setup: "]
+           [:input {:type "password"}]]]])))
 
 (defn confluence-config-page
   [req]
