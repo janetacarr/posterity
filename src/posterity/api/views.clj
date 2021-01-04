@@ -9,7 +9,7 @@
     ["/settings.html" {:get {}
                        :middleware [wrap-params
                                     (partial wrap-authentication "jira")]
-                       :handler pages-handlers/get-hello-page}]
+                       :handler pages-handlers/jira-configuration-page}]
     ["/atlassian-connect.json" {:get {}
                                 :handler config-handlers/get-jira-connect}]]
 

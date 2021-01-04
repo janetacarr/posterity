@@ -19,9 +19,9 @@
     (let [request-body (:body req)]
       (when-not (nil? request-body)
         (p/put-event! eventq request-body))
-      (log/info "Whole request:" req)
-      (log/info "headers: ==============> "(:headers req))
-      (log/info "Received webhook event: " request-body))
+      (log/debug "Whole request:" req)
+      (log/debug "headers: ==============> "(:headers req))
+      (log/debug "Received webhook event: " request-body))
     {:status 200}))
 
 (defn app-installed

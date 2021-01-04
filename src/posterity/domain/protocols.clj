@@ -63,3 +63,13 @@
 (defprotocol TokenValidator
   (get-secret-bytes [this token]
     "Takes a JWT and product-type, extracts the issuer and gets the secret stored in the db. nil if not found."))
+
+(defprotocol CrossInstall
+  (get-install-by-base-and-product [this base-url product-type]
+    "Gets an install record by base-url and product-type, returns nil if unable to get record")
+  (connect-product-instances! [this source-id target-id]
+    "Connects product source to product target. Returns true if successful, nil otherwise."))
+
+(defprotocol Configurator
+  (install-complete? [this client-key product-type]
+    "Checks that this product has a companion product. "))

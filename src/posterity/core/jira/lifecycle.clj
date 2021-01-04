@@ -13,15 +13,24 @@
                        display-url-servicedesk-help-center product-type description
                        service-entitlement-number oauth-client-id]
                 :as install-payload}]
-    (let [installation (p/get-install! installer client-key product-type)]
-      (when (nil? installation)
-        (p/create-install! installer nil key client-key
-                           account-id shared-secret
-                           base-url display-url
-                           display-url-servicedesk-help-center
-                           product-type description
-                           ""
-                           oauth-client-id))))
+    (let [installation (p/get-install! installer client-key product-type)
+          installation (when (nil? installation)
+                         (p/create-install! installer nil key client-key
+                                            account-id shared-secret
+                                            base-url display-url
+                                            display-url-servicedesk-help-center
+                                            product-type description
+                                            ""
+                                            oauth-client-id))
+          companion (p/get-install-by-base-and-product installer
+                                                       (str base-url "/wiki")
+                                                       "confluence")
+          _ (when (and (:install-id companion)
+                       (nil? (:customer-id companion)))
+              (p/connect-product-instances! installer
+                                            (:install-id installation)
+                                            (:install-id companion)))]
+      installation))
 
   (uninstalled! [this {:keys [key client-key account-id shared-secret base-url display-url
                               display-url-servicedesk-help-center product-type description
