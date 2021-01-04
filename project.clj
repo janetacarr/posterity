@@ -24,7 +24,8 @@
                  [garden "1.3.9"]
                  [cheshire "5.10.0"]
                  [camel-snake-kebab "0.4.1"]
-                 [com.taoensso/timbre "4.10.0"]]
+                 [com.taoensso/timbre "4.10.0"]
+                 [selmer "1.12.18"]]
   :plugins [[cider/cider-nrepl "0.21.1"]]
   :main ^:skip-aot posterity.core
   :target-path "target/%s"

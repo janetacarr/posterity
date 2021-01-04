@@ -1,4 +1,4 @@
-(ns posterity.settings.token
+(ns posterity.core.token
   (:require [buddy.auth.backends :as backends]
             [buddy.auth.middleware :as budmid]
             [buddy.core.hash :as hash]

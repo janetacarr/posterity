@@ -1,12 +1,12 @@
 (ns posterity.api.routes
   (:require [posterity.api.handlers :as handlers]
             [posterity.api.views :as views]
+            [posterity.core.jira.lifecycle :as jl]
+            [posterity.core.confluence.lifecycle :as cl]
             [posterity.eventq.core :refer [eventq]]
             [posterity.middleware :refer [wrap-params
                                           wrap-lifecycle-request
-                                          wrap-authentication]]
-            [posterity.settings.jira.lifecycle :as jl]
-            [posterity.settings.confluence.lifecycle :as cl]))
+                                          wrap-authentication]]))
 
 (def api-routes
   [["/jira"

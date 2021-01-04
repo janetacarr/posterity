@@ -1,13 +1,15 @@
 (ns posterity.middleware
   (:require [buddy.auth.backends :as backends]
             [buddy.auth.middleware :as budmid]
+            [buddy.sign.jwt :as jwt]
             [cheshire.core :as json]
             [clojure.spec.alpha :as s]
+            [clojure.string :as string]
             [byte-streams :as bs]
             [camel-snake-kebab.core :as csk]
             [camel-snake-kebab.extras :as cske]
             [posterity.domain.protocols :as p]
-            [posterity.settings.token :refer [auth-token-installs]]
+            [posterity.core.token :refer [auth-token-installs]]
             [reitit.ring.middleware.exception :as exception]
             [taoensso.timbre :as log]))
 
@@ -122,6 +124,21 @@
           (log/error "received invalid lifecycle event" body)
           {:status 400})))))
 
+(defn get-identity-map
+  "Takes a JWT and returns claims as an identity map."
+  [token secret]
+  (try
+    (let [claims (if (or (string/starts-with? token "JWT ")
+                         (string/starts-with? token "jwt "))
+                   (let [encoded (some-> token
+                                         (string/split #" ")
+                                         (second))]
+                     (jwt/unsign encoded secret))
+                   (jwt/unsign token secret))]
+      {:client-key (:iss claims)
+       :account-id (:sub claims)})
+    (catch Exception e
+      (log/error "unable to construct identity map from token" token))))
 
 ;; TODO: Added query string hash (qsh) validation
 (defn wrap-authentication
@@ -143,5 +160,7 @@
           backend (backends/jws {:secret secret
                                  :token-name "JWT"})]
       (if-not (nil? (budmid/authenticate-request request [backend]))
-        (handler request)
+        (let [identity-map (get-identity-map token secret)
+              request (assoc request :identity identity-map)]
+          (handler request))
         {:status 401}))))

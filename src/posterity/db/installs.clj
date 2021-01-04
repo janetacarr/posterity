@@ -175,3 +175,84 @@
                     (not)))))))
       (catch Exception e
         (log/error "unable to enable install" client-key product-type (.getMessage e))))))
+
+(extend-type Installs
+  p/CrossInstall
+  (get-install-by-base-and-product [this base-url product-type]
+    (try
+      (let [db (:db this)
+            pt (case product-type
+                 "jira" (hsql/raw "'jira'")
+                 "confluence" (hsql/raw "'confluence'")
+                 (log/warn "product-type must be either 'jira' or 'confluence'"))]
+        (when-not (nil? pt)
+          (->> (hsql/build :select :* :from :installs
+                           :where [:and
+                                   [:= :base_url base-url]
+                                   [:= :product_type pt]])
+               (hsql/format)
+               (jdbc/query db)
+               (first)
+               (cske/transform-keys csk/->kebab-case-keyword))))
+      (catch Exception e
+        (log/error
+         "unable to get install info by base-url and product-type"
+         base-url
+         product-type
+         (.getMessage e)))))
+
+  (connect-product-instances! [this source-id target-id]
+    (try
+      (let [db (:db this)
+            customer
+            (jdbc/with-db-transaction [db-con db]
+              (let [customer-is-created
+                    (->> (hsql/build :insert-into :customers :values [{:ts :current_timestamp}])
+                         (hsql/format)
+                         (jdbc/execute! db-con)
+                         (empty?)
+                         (not))
+                    customer (if customer-is-created
+                               (->> (hsql/build :select :* :from :customers
+                                                :order-by [[:customer_id :desc]]
+                                                :limit 1)
+                                    (hsql/format)
+                                    (jdbc/query db-con)
+                                    (first)
+                                    (cske/transform-keys csk/->kebab-case-keyword))
+                               (throw (ex-info "Could not create customer" customer-is-created)))]
+                customer))]
+        (jdbc/with-db-connection [db (:db this)]
+          (letfn [(exec! [q]
+                    (jdbc/execute! db q))]
+            (let [source-is-updated
+                  (-> (hsqlh/update :installs)
+                      (hsqlh/sset {:customer_id (:customer-id customer)})
+                      (hsqlh/where [:= :install_id source-id])
+                      (hsql/format)
+                      (exec!)
+                      (empty?)
+                      (not)
+                      (or (throw
+                           (ex-info
+                            "could not update source with customer"
+                            customer))))
+                  target-is-updated
+                  (-> (hsqlh/update :installs)
+                      (hsqlh/sset {:customer_id (:customer-id customer)})
+                      (hsqlh/where [:= :install_id target-id])
+                      (hsql/format)
+                      (exec!)
+                      (empty?)
+                      (not)
+                      (or (throw
+                           (ex-info
+                            "could not update target"
+                            customer))))]
+              (and source-is-updated target-is-updated)))))
+      (catch Exception e
+        (log/error
+         "unable to connect product instances"
+         source-id
+         target-id
+         (.getMessage e))))))
